@@ -2,147 +2,246 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ANON_FOCUS // V3</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ANON_CHAT // PRO</title>
     <style>
         :root {
-            --bg: #ffffff;
-            --fg: #000000;
-            --gray: #f2f2f2;
-            --accent: #888888;
-            --focus-width: 550px;
+            --bg-page: #f4f5f7;
+            --bg-app: #ffffff;
+            --text-main: #1c1c1e;
+            --text-sub: #8e8e93;
+            --blue-gradient: linear-gradient(135deg, #007aff, #005bb5);
+            --bubble-stranger: #e9ecef;
+            --border: #e5e5ea;
+            --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            background-color: var(--bg);
-            color: var(--fg);
-            font-family: 'Builder Sans', 'Inter', system-ui, sans-serif;
+            background-color: var(--bg-page);
+            font-family: var(--font);
             margin: 0;
-            height: 100vh;
             display: flex;
-            justify-content: center; /* 視窗置中 */
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
         }
 
+        /* 視窗集中設計 */
         #app-container {
             width: 100%;
-            max-width: var(--focus-width);
-            height: 100%;
+            max-width: 480px;
+            background: var(--bg-app);
+            height: 100vh;
             display: flex;
             flex-direction: column;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
             position: relative;
-            border-left: 1px solid var(--gray);
-            border-right: 1px solid var(--gray);
         }
 
+        /* 頂部導航 */
         header {
-            padding: 20px;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            border-bottom: 1px solid var(--gray);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 10;
         }
 
+        .status-title { font-weight: 600; font-size: 15px; color: var(--text-main); }
+        .status-sub { font-size: 12px; color: var(--text-sub); margin-top: 2px;}
+
+        /* 聊天區域 */
         #chat-flow {
             flex: 1;
             padding: 20px;
             overflow-y: auto;
             display: flex;
             flex-direction: column-reverse;
-            gap: 12px;
-            scrollbar-width: none;
+            gap: 16px;
+            scroll-behavior: smooth;
         }
-        #chat-flow::-webkit-scrollbar { display: none; }
 
-        /* 訊息氣泡 */
+        #chat-flow::-webkit-scrollbar { display: none; } /* 隱藏滾動條求美觀 */
+
+        /* 訊息氣泡與動畫 */
         .msg-wrapper {
             display: flex;
             flex-direction: column;
-            animation: cubic-bezier(0.2, 1, 0.2, 1) 0.5s msg-in;
+            animation: spring-up 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.2) forwards;
+            opacity: 0;
+            transform-origin: bottom;
+            position: relative;
         }
 
-        @keyframes msg-in {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes spring-up {
+            0% { opacity: 0; transform: translateY(20px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .msg {
-            max-width: 85%;
+            max-width: 75%;
             padding: 10px 16px;
             font-size: 15px;
             line-height: 1.4;
             border-radius: 20px;
+            position: relative;
+            word-wrap: break-word;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: opacity 0.2s;
         }
-        .msg:active { transform: scale(0.98); }
+        .msg:active { opacity: 0.8; }
 
-        .me { align-items: flex-end; }
-        .me .msg { background: var(--fg); color: var(--bg); border-bottom-right-radius: 4px; }
-
-        .stranger { align-items: flex-start; }
-        .stranger .msg { background: var(--gray); color: var(--fg); border-bottom-left-radius: 4px; }
-
-        /* 回覆樣式 */
-        .reply-ref {
+        /* 回覆區塊設計 */
+        .reply-quote {
             font-size: 12px;
-            padding: 4px 8px;
-            border-left: 2px solid var(--accent);
+            padding: 6px 10px;
+            border-radius: 8px;
             margin-bottom: 4px;
-            opacity: 0.6;
-            white-space: nowrap;
+            background: rgba(0,0,0,0.05);
+            color: var(--text-sub);
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
             overflow: hidden;
-            text-overflow: ellipsis;
         }
 
-        /* Typing 提示 */
-        #typing-indicator {
-            padding: 5px 20px;
-            font-size: 11px;
-            color: var(--accent);
-            height: 20px;
-            font-style: italic;
-            transition: opacity 0.3s;
+        /* 雙方樣式區分 */
+        .msg-wrapper.me { align-items: flex-end; }
+        .msg-wrapper.me .msg {
+            background: var(--blue-gradient);
+            color: white;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
         }
+
+        .msg-wrapper.stranger { align-items: flex-start; }
+        .msg-wrapper.stranger .msg {
+            background: var(--bubble-stranger);
+            color: var(--text-main);
+            border-bottom-left-radius: 4px;
+        }
+
+        /* 圖片訊息 */
+        .msg img {
+            max-width: 100%;
+            border-radius: 12px;
+            display: block;
+            margin-top: 5px;
+        }
+
+        /* 系統訊息 */
+        .msg-wrapper.system { align-items: center; }
+        .msg-wrapper.system .msg {
+            background: transparent;
+            color: var(--text-sub);
+            font-size: 12px;
+            text-align: center;
+            cursor: default;
+        }
+
+        /* 底部輸入區域 */
+        #input-area {
+            background: var(--bg-app);
+            border-top: 1px solid var(--border);
+            padding: 12px 16px 24px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s;
+        }
+        #input-area.hidden { transform: translateY(100%); display: none;}
 
         /* 回覆預覽列 */
         #reply-preview {
-            padding: 10px 20px;
-            background: var(--gray);
-            font-size: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: var(--text-sub);
+        }
+        #reply-preview.hidden { display: none; }
+        .cancel-reply { cursor: pointer; color: #ff3b30; font-weight: bold; }
+
+        .input-bar {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            background: #f4f5f7;
+            border-radius: 24px;
+            padding: 6px 12px;
         }
 
-        footer {
-            padding: 20px;
-            background: var(--bg);
-        }
-
-        .input-box {
-            background: var(--gray);
-            border-radius: 30px;
-            padding: 10px 20px;
+        /* 圖片上傳按鈕 */
+        .icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-sub);
+            font-size: 22px;
+            cursor: pointer;
+            padding: 4px;
             display: flex;
             align-items: center;
         }
 
-        input {
+        input[type="text"] {
             flex: 1;
             background: transparent;
             border: none;
-            outline: none;
-            font-family: inherit;
+            padding: 8px 0;
             font-size: 15px;
+            outline: none;
+            color: var(--text-main);
+            max-height: 80px;
         }
 
-        .hidden { display: none !important; }
+        .send-btn {
+            background: var(--blue-gradient);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        /* 打字狀態指示器 */
+        #typing-indicator {
+            position: absolute;
+            bottom: 80px;
+            left: 20px;
+            background: var(--bg-app);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: var(--text-sub);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        #typing-indicator.active { opacity: 1; transform: translateY(0); }
+        .dot { width: 4px; height: 4px; background: var(--text-sub); border-radius: 50%; animation: blink 1.4s infinite; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes blink { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
     </style>
 </head>
@@ -150,22 +249,32 @@
 
 <div id="app-container">
     <header>
-        <span id="status">Syncing...</span>
-        <span id="log-info">0/30</span>
+        <div>
+            <div class="status-title">Anonymous Chat</div>
+            <div class="status-sub" id="status-text">Connecting...</div>
+        </div>
     </header>
 
-    <main id="chat-flow"></main>
+    <main id="chat-flow">
+        <div class="msg-wrapper system"><div class="msg">Establishing secure connection</div></div>
+    </main>
 
-    <div id="typing-indicator" class="hidden">stranger is typing...</div>
-
-    <div id="reply-preview" class="hidden">
-        <span id="reply-text"></span>
-        <button onclick="cancelReply()" style="border:none; background:none; cursor:pointer;">×</button>
+    <div id="typing-indicator">
+        Stranger is typing <span class="dot"></span><span class="dot"></span><span class="dot"></span>
     </div>
 
-    <footer id="input-wrap" class="hidden">
-        <div class="input-box">
-            <input type="text" id="m-input" placeholder="Type message..." autocomplete="off">
+    <footer id="input-area" class="hidden">
+        <div id="reply-preview" class="hidden">
+            <span id="reply-text">Replying...</span>
+            <span class="cancel-reply" onclick="cancelReply()">✕</span>
+        </div>
+
+        <div class="input-bar">
+            <input type="file" id="img-upload" accept="image/*" style="display: none;">
+            <button class="icon-btn" onclick="document.getElementById('img-upload').click()">+</button>
+            
+            <input type="text" id="m-input" placeholder="Message..." autocomplete="off">
+            <button class="send-btn" id="send-btn">↑</button>
         </div>
     </footer>
 </div>
@@ -188,106 +297,177 @@
     const db = getDatabase(app);
     const myId = Math.random().toString(36).substring(7);
     let currentRoomId = null;
-    let replyTarget = null;
-    let typingTimeout = null;
+    let replyingToData = null; // 儲存當前要回覆的訊息
+    let typingTimeout;
 
+    const statusText = document.getElementById('status-text');
     const flowEl = document.getElementById('chat-flow');
+    const inputArea = document.getElementById('input-area');
     const inputEl = document.getElementById('m-input');
-    const typingEl = document.getElementById('typing-indicator');
-    const replyPre = document.getElementById('reply-preview');
+    const sendBtn = document.getElementById('send-btn');
+    const imgUpload = document.getElementById('img-upload');
+    const typingInd = document.getElementById('typing-indicator');
+    const replyPreview = document.getElementById('reply-preview');
+    const replyText = document.getElementById('reply-text');
+
+    // 暴露到全域供 HTML onclick 使用
+    window.cancelReply = () => {
+        replyingToData = null;
+        replyPreview.classList.add('hidden');
+    };
 
     async function startMatch() {
+        statusText.innerText = "Searching for a stranger...";
         const poolRef = ref(db, 'waiting_pool');
-        const snap = await get(poolRef);
+        const snapshot = await get(poolRef);
         
-        if (snap.exists()) {
-            const opponentId = Object.keys(snap.val())[0];
-            currentRoomId = snap.val()[opponentId].roomId;
+        if (snapshot.exists()) {
+            const waiters = snapshot.val();
+            const opponentId = Object.keys(waiters)[0];
+            currentRoomId = waiters[opponentId].roomId;
             await remove(ref(db, `waiting_pool/${opponentId}`));
-            await push(ref(db, `rooms/${currentRoomId}/messages`), { sender: "sys", text: "init" });
-            initChat(currentRoomId);
+            await push(ref(db, `rooms/${currentRoomId}/messages`), { sender: "sys", text: "Connected" });
+            beginChat();
         } else {
             currentRoomId = `room_${myId}`;
             await set(ref(db, `waiting_pool/${myId}`), { roomId: currentRoomId });
             onDisconnect(ref(db, `waiting_pool/${myId}`)).remove();
-            const unsubscribe = onValue(ref(db, `rooms/${currentRoomId}/messages`), (s) => {
-                if (s.exists()) { unsubscribe(); initChat(currentRoomId); }
-            });
+            
+            onValue(ref(db, `rooms/${currentRoomId}/messages`), (snap) => {
+                if (snap.exists()) {
+                    beginChat();
+                }
+            }, { onlyOnce: true });
         }
     }
 
-    function initChat(rid) {
-        document.getElementById('status').innerText = "Established";
-        document.getElementById('input-wrap').classList.remove('hidden');
+    function beginChat() {
+        statusText.innerText = "Online";
+        inputArea.classList.remove('hidden');
         
-        const roomRef = ref(db, `rooms/${rid}`);
+        const roomRef = ref(db, `rooms/${currentRoomId}`);
         onDisconnect(roomRef).remove();
 
         // 監聽訊息
-        onValue(roomRef, (snap) => {
-            if (!snap.exists()) location.reload();
-            const data = snap.val();
-            if (data && data.messages) {
-                const msgs = Object.values(data.messages).filter(m => m.sender !== "sys");
-                render(msgs.slice(-30));
+        onValue(ref(db, `rooms/${currentRoomId}/messages`), (snap) => {
+            if (!snap.exists() && statusText.innerText === "Online") { 
+                location.reload(); 
+                return; 
             }
-            // 監聽對方輸入狀態
-            if (data && data.typing) {
-                const typingUser = Object.keys(data.typing).find(id => id !== myId);
-                typingEl.classList.toggle('hidden', !typingUser);
+            const data = snap.val();
+            if (data) {
+                const msgList = Object.values(data).filter(m => m.sender !== "sys");
+                updateUI(msgList.slice(-30));
+            }
+        });
+
+        // 監聽對方打字狀態
+        onValue(ref(db, `rooms/${currentRoomId}/typing`), (snap) => {
+            const data = snap.val() || {};
+            const isStrangerTyping = Object.keys(data).some(id => id !== myId && data[id] === true);
+            if (isStrangerTyping) {
+                typingInd.classList.add('active');
+            } else {
+                typingInd.classList.remove('active');
             }
         });
     }
 
-    function render(msgs) {
+    function updateUI(msgs) {
         flowEl.innerHTML = '';
-        [...msgs].reverse().forEach(m => {
+        const reversed = [...msgs].reverse(); 
+        
+        reversed.forEach(m => {
             const wrap = document.createElement('div');
             wrap.className = `msg-wrapper ${m.sender === myId ? 'me' : 'stranger'}`;
             
-            let replyHTML = m.replyTo ? `<div class="reply-ref">${m.replyTo}</div>` : '';
-            wrap.innerHTML = `${replyHTML}<div class="msg" title="Double click to reply">${m.text}</div>`;
+            // 處理回覆區塊
+            let replyHtml = '';
+            if (m.replyToText) {
+                replyHtml = `<div class="reply-quote">${m.replyToText}</div>`;
+            }
+
+            // 處理圖片或純文本
+            let contentHtml = m.image ? `<img src="${m.image}">` : m.text;
+
+            wrap.innerHTML = `<div class="msg">${replyHtml}${contentHtml}</div>`;
             
-            wrap.ondblclick = () => setReply(m.text);
+            // 點擊訊息設定回覆
+            wrap.querySelector('.msg').addEventListener('click', () => {
+                replyingToData = m.text || 'Image';
+                replyText.innerText = `Replying to: ${replyingToData}`;
+                replyPreview.classList.remove('hidden');
+                inputEl.focus();
+            });
+
             flowEl.appendChild(wrap);
         });
-        document.getElementById('log-info').innerText = `${msgs.length}/30`;
     }
 
-    function setReply(text) {
-        replyTarget = text;
-        replyPre.classList.remove('hidden');
-        document.getElementById('reply-text').innerText = `Replying to: ${text}`;
-        inputEl.focus();
+    // 發送訊息邏輯
+    function sendMessage(text = '', imageBase64 = null) {
+        if (!text && !imageBase64) return;
+        
+        push(ref(db, `rooms/${currentRoomId}/messages`), {
+            sender: myId,
+            text: text,
+            image: imageBase64, // 如果有圖片則存入 base64
+            replyToText: replyingToData, // 存入被回覆的文字
+            ts: serverTimestamp()
+        });
+
+        inputEl.value = '';
+        window.cancelReply();
+        set(ref(db, `rooms/${currentRoomId}/typing/${myId}`), null); // 停止打字狀態
     }
 
-    window.cancelReply = () => {
-        replyTarget = null;
-        replyPre.classList.add('hidden');
-    }
+    inputEl.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage(inputEl.value.trim());
+    });
+    sendBtn.addEventListener('click', () => sendMessage(inputEl.value.trim()));
 
-    // 輸入狀態邏輯
-    inputEl.oninput = () => {
+    // 處理打字狀態傳遞
+    inputEl.addEventListener('input', () => {
         set(ref(db, `rooms/${currentRoomId}/typing/${myId}`), true);
         clearTimeout(typingTimeout);
         typingTimeout = setTimeout(() => {
-            remove(ref(db, `rooms/${currentRoomId}/typing/${myId}`));
+            set(ref(db, `rooms/${currentRoomId}/typing/${myId}`), null);
         }, 1500);
-    };
+    });
 
-    inputEl.onkeypress = (e) => {
-        if (e.key === 'Enter' && inputEl.value.trim() !== '') {
-            push(ref(db, `rooms/${currentRoomId}/messages`), {
-                sender: myId,
-                text: inputEl.value,
-                replyTo: replyTarget,
-                ts: serverTimestamp()
-            });
-            inputEl.value = '';
-            cancelReply();
-            remove(ref(db, `rooms/${currentRoomId}/typing/${myId}`));
-        }
-    };
+    // 處理圖片上傳與壓縮 (轉 Base64)
+    imgUpload.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+                // 使用 Canvas 壓縮圖片以防塞爆 Firebase
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const MAX_WIDTH = 600; // 最大寬度
+                let width = img.width;
+                let height = img.height;
+
+                if (width > MAX_WIDTH) {
+                    height *= MAX_WIDTH / width;
+                    width = MAX_WIDTH;
+                }
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // 轉為 70% 質量的 JPEG base64
+                const base64Data = canvas.toDataURL('image/jpeg', 0.7); 
+                sendMessage('', base64Data);
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+        imgUpload.value = ''; // 重置 input
+    });
 
     startMatch();
 </script>
