@@ -3,84 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ANON_CHAT // PROTOCOL</title>
+    <title>ANON_PROTOCOL // V2</title>
     <style>
         :root {
             --bg: #ffffff;
             --fg: #000000;
-            --border: #e0e0e0;
-            --system: #a0a0a0;
+            --border: #f0f0f0;
+            --system: #888888;
+            --font: 'Builder Sans', 'Inter', -apple-system, sans-serif;
         }
+
+        * { box-sizing: border-box; }
 
         body {
             background-color: var(--bg);
             color: var(--fg);
-            font-family: 'Builder Sans', 'Inter', -apple-system, sans-serif;
+            font-family: var(--font);
             margin: 0;
             display: flex;
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
-            letter-spacing: -0.02em;
         }
 
-        /* 頂部狀態列 */
+        /* 頂部狀態列：更細緻的邊框 */
         header {
-            padding: 12px 20px;
-            border-bottom: 1px solid var(--fg);
+            padding: 18px 25px;
+            border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 600;
+            letter-spacing: 1px;
             text-transform: uppercase;
+            z-index: 10;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
         }
 
-        /* 聊天流區域 */
+        /* 聊天區域：改為由下往上 */
         #chat-flow {
             flex: 1;
             padding: 20px;
             overflow-y: auto;
             display: flex;
+            flex-direction: column-reverse; /* 核心修改：由下往上 */
+            gap: 15px;
+            scroll-behavior: smooth;
+        }
+
+        /* 訊息氣泡與動畫 */
+        .msg-wrapper {
+            display: flex;
             flex-direction: column;
-            gap: 10px;
+            animation: msg-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+        }
+
+        @keyframes msg-in {
+            from { opacity: 0; transform: translateY(15px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .msg {
-            max-width: 90%;
-            padding: 2px 0;
-            font-size: 14px;
-            line-height: 1.6;
-            border-bottom: 1px solid transparent;
+            max-width: 80%;
+            padding: 10px 15px;
+            font-size: 14.5px;
+            line-height: 1.4;
+            border-radius: 18px;
+            position: relative;
         }
 
-        /* 身份標籤風格 */
-        .msg b {
-            font-weight: 800;
-            margin-right: 8px;
-            display: inline-block;
-            min-width: 70px;
+        /* 自己與對方的區分 */
+        .msg-wrapper.me { align-items: flex-end; }
+        .msg-wrapper.me .msg {
+            background-color: var(--fg);
+            color: var(--bg);
+            border-bottom-right-radius: 4px;
         }
 
-        .msg.me b { color: var(--fg); }
-        .msg.stranger b { color: var(--system); }
-        .msg.system { color: var(--system); font-size: 12px; }
+        .msg-wrapper.stranger { align-items: flex-start; }
+        .msg-wrapper.stranger .msg {
+            background-color: var(--border);
+            color: var(--fg);
+            border-bottom-left-radius: 4px;
+        }
 
-        /* 輸入區域 */
-        #input-wrap {
-            padding: 30px 20px;
-            border-top: 1px solid var(--fg);
+        .msg-wrapper.system {
+            align-items: center;
+            font-size: 11px;
+            color: var(--system);
+            margin: 10px 0;
+            text-transform: uppercase;
+        }
+
+        /* 輸入區域：Instagram 風格懸浮感 */
+        footer {
+            padding: 20px;
             background: var(--bg);
+            transition: transform 0.3s ease;
         }
 
-        #input-wrap.hidden { display: none; }
+        footer.hidden { transform: translateY(100%); }
 
-        .input-line {
+        .input-bar {
             display: flex;
             align-items: center;
+            background: var(--border);
+            border-radius: 25px;
+            padding: 8px 18px;
             gap: 10px;
         }
-
-        .input-line span { font-weight: 800; }
 
         input {
             flex: 1;
@@ -90,37 +123,38 @@
             font-family: inherit;
             font-size: 15px;
             outline: none;
-            padding: 5px 0;
+            padding: 8px 0;
         }
 
-        /* 滾動條 */
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { background: var(--fg); }
-
-        /* 等待動畫 */
-        .loading::after {
-            content: '...';
-            animation: blink 1s infinite;
+        /* 載入動畫 */
+        .dot-typing {
+            display: inline-flex;
+            gap: 3px;
         }
-        @keyframes blink { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
+        .dot {
+            width: 4px; height: 4px; background: var(--system); border-radius: 50%;
+            animation: dot-blink 1.4s infinite both;
+        }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes dot-blink { 0%, 80%, 100% { opacity: 0; } 40% { opacity: 1; } }
+
     </style>
 </head>
 <body>
 
 <header>
-    <div id="status">Protocol: <span class="loading">Initializing</span></div>
-    <div id="log-count">Log: 0/30</div>
+    <div id="status">Protocol / <span id="status-text">Synchronizing</span></div>
+    <div id="log-count">0/30</div>
 </header>
 
 <main id="chat-flow">
-    <div class="msg system">Initializing secure peer-to-peer connection...</div>
+    <div class="msg-wrapper system">Waiting for secure handshake...</div>
 </main>
 
 <footer id="input-wrap" class="hidden">
-    <div class="input-line">
-        <span>&gt;</span>
-        <input type="text" id="m-input" placeholder="Enter message..." autofocus>
+    <div class="input-bar">
+        <input type="text" id="m-input" placeholder="Type message..." autofocus autocomplete="off">
     </div>
 </footer>
 
@@ -140,42 +174,32 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    
-    let currentRoomId = null;
     const myId = Math.random().toString(36).substring(7);
-    
-    const statusEl = document.getElementById('status');
+    let currentRoomId = null;
+
+    const statusText = document.getElementById('status-text');
     const flowEl = document.getElementById('chat-flow');
     const inputWrap = document.getElementById('input-wrap');
     const inputEl = document.getElementById('m-input');
     const countEl = document.getElementById('log-count');
 
     async function startMatch() {
-        statusEl.innerHTML = `Protocol: <span class="loading">Searching</span>`;
+        statusText.innerHTML = `Searching <span class="dot-typing"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>`;
         const poolRef = ref(db, 'waiting_pool');
-        
         const snapshot = await get(poolRef);
         
         if (snapshot.exists()) {
-            // 匹配成功：作為第二個加入者
             const waiters = snapshot.val();
             const opponentId = Object.keys(waiters)[0];
             currentRoomId = waiters[opponentId].roomId;
-            
             await remove(ref(db, `waiting_pool/${opponentId}`));
-            
-            // 發送握手信號
-            const mRef = ref(db, `rooms/${currentRoomId}/messages`);
-            await push(mRef, { sender: "system_sync", text: "ready" });
-            
+            await push(ref(db, `rooms/${currentRoomId}/messages`), { sender: "sys_sync", text: "1" });
             beginChat(currentRoomId);
         } else {
-            // 建立房間：作為第一個等待者
             currentRoomId = `room_${myId}`;
             await set(ref(db, `waiting_pool/${myId}`), { roomId: currentRoomId });
             onDisconnect(ref(db, `waiting_pool/${myId}`)).remove();
             
-            // 監聽握手信號
             const syncRef = ref(db, `rooms/${currentRoomId}/messages`);
             const unsubscribe = onValue(syncRef, (snap) => {
                 if (snap.exists()) {
@@ -187,7 +211,7 @@
     }
 
     function beginChat(roomId) {
-        statusEl.innerText = "Protocol: Established";
+        statusText.innerText = "Established";
         inputWrap.classList.remove('hidden');
         inputEl.focus();
         
@@ -195,38 +219,34 @@
         onDisconnect(roomRef).remove();
 
         onValue(roomRef, (snap) => {
-            if (!snap.exists()) {
-                // 對方離開，自動踢出並重新匹配
-                window.location.reload();
-                return;
-            }
-            
+            if (!snap.exists()) { location.reload(); return; }
             const data = snap.val();
             if (data && data.messages) {
                 const msgList = Object.values(data.messages)
-                                      .filter(m => m.sender !== "system_sync");
-                updateUI(msgList.slice(-30)); // 僅保留最後 30 條
+                                      .filter(m => m.sender !== "sys_sync");
+                updateUI(msgList.slice(-30));
             }
         });
     }
 
     function updateUI(msgs) {
+        // 因為使用了 column-reverse，我們需要反轉陣列來配合顯示順序
+        // 但由於 Firebase 的 timestamp 順序，我們反轉它們以確保最新訊息在最下面
+        const reversed = [...msgs].reverse(); 
+        
         flowEl.innerHTML = '';
-        msgs.forEach(m => {
-            const div = document.createElement('div');
-            div.className = `msg ${m.sender === myId ? 'me' : 'stranger'}`;
-            const label = m.sender === myId ? 'YOU' : 'STRANGER';
-            div.innerHTML = `<b>${label}</b> ${m.text}`;
-            flowEl.appendChild(div);
+        reversed.forEach(m => {
+            const wrap = document.createElement('div');
+            wrap.className = `msg-wrapper ${m.sender === myId ? 'me' : 'stranger'}`;
+            wrap.innerHTML = `<div class="msg">${m.text}</div>`;
+            flowEl.appendChild(wrap);
         });
-        flowEl.scrollTop = flowEl.scrollHeight;
-        countEl.innerText = `Log: ${msgs.length}/30`;
+        countEl.innerText = `${msgs.length}/30`;
     }
 
     inputEl.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && inputEl.value.trim() !== '') {
-            const mRef = ref(db, `rooms/${currentRoomId}/messages`);
-            push(mRef, {
+            push(ref(db, `rooms/${currentRoomId}/messages`), {
                 sender: myId,
                 text: inputEl.value,
                 ts: serverTimestamp()
@@ -234,12 +254,6 @@
             inputEl.value = '';
         }
     });
-
-    // 防止頁面快取導致的邏輯錯誤
-    window.onbeforeunload = () => {
-        remove(ref(db, `rooms/${currentRoomId}`));
-        remove(ref(db, `waiting_pool/${myId}`));
-    };
 
     startMatch();
 </script>
