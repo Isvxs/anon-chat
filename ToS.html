@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANON_PROTOCOL Documentation & User Agreement</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background-color: #f9f9f9;
+        }
+        header {
+            border-bottom: 2px solid #333;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+        }
+        h1 { margin: 0; font-size: 2.2em; letter-spacing: -1px; }
+        h2 { border-left: 4px solid #333; padding-left: 15px; margin-top: 40px; color: #000; }
+        h3 { margin-top: 25px; color: #444; }
+        section { margin-bottom: 30px; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .disclaimer {
+            background-color: #fff3f3;
+            border: 1px solid #ffcccc;
+            padding: 20px;
+            color: #b30000;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        ul { padding-left: 20px; }
+        li { margin-bottom: 10px; }
+        code { background: #eee; padding: 2px 5px; border-radius: 4px; font-family: monospace; }
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 0.9em;
+            color: #777;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+        .highlight { font-weight: 600; color: #000; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>ANON_PROTOCOL // USER GUIDE & LEGAL FRAMEWORK</h1>
+    <p>Comprehensive Documentation for Anonymous Peer-to-Peer Communication</p>
+</header>
+
+<div class="disclaimer">
+    IMPORTANT DISCLAIMER: This platform is provided "as-is" without any warranties of any kind. The developers are not responsible for the content exchanged between users, nor for any damages, legal issues, or psychological distress arising from the use of this service. Use of this protocol constitutes an agreement that you are solely responsible for your interactions.
+</div>
+
+<section>
+    <h2>1. Introduction</h2>
+    <p>
+        The <strong>ANON_PROTOCOL</strong> is a high-speed, ephemeral, web-based chat interface designed to facilitate instant, anonymous connections between two parties. Built on a serverless architecture utilizing real-time database synchronization, it prioritizes a "zero-persistence" philosophy where user identities are masked and session data is temporary. 
+    </p>
+    <p>
+        Unlike traditional social media, there are no profiles, no long-term logs, and no central authority monitoring the nuance of your private conversation. It is a digital "dark room" for pure data exchange.
+    </p>
+</section>
+
+<section>
+    <h2>2. Technical Functionality</h2>
+    <h3>2.1 Peer Matching Logic</h3>
+    <p>
+        The protocol utilizes a <strong>Waiting Pool</strong> system. Upon initialization, the client generates a unique, session-based identifier (UID) stored in the local browser cache. 
+    </p>
+    <ul>
+        <li><strong>Queueing:</strong> If no other users are available, you are placed in a global waiting pool.</li>
+        <li><strong>Handshake:</strong> When a second user joins, a "Room" is dynamically created. The two clients establish a synchronization link via a unique Room ID.</li>
+        <li><strong>Anti-Reconnection Logic:</strong> To prevent harassment, the system implements a 15-second block on previous opponents if a session is terminated abruptly, ensuring you do not immediately rematch with the same person.</li>
+    </ul>
+
+    <h3>2.2 Communication Features</h3>
+    <ul>
+        <li><span class="highlight">Textual Exchange:</span> Real-time message streaming with sub-millisecond latency.</li>
+        <li><span class="highlight">Multimedia Handling:</span> Support for JPEG/PNG/WebP uploads. Images are automatically compressed and resized to 1024px to ensure stability and reduce bandwidth.</li>
+        <li><span class="highlight">Spoiler Protection:</span> Users can mark sensitive or "spoiler" images. These are delivered with a high-intensity Gaussian blur, requiring the recipient to click to reveal the content.</li>
+        <li><span class="highlight">Contextual Replies:</span> By clicking a message, users can "quote" a specific line of text to maintain clarity in fast-moving dialogues.</li>
+        <li><span class="highlight">Presence Monitoring:</span> Dynamic status indicators track whether the "Stranger" is <code style="color: green;">Active</code>, <code style="color: orange;">Away</code> (window blurred), or <code style="color: red;">Disconnected</code>.</li>
+    </ul>
+</section>
+
+<section>
+    <h2>3. Operating Instructions</h2>
+    <h3>3.1 Starting a Session</h3>
+    <p>
+        Open the application in any modern web browser. The system will automatically attempt to "Connect." If the status dot remains orange, you are waiting for a partner. Once it turns green, communication is established.
+    </p>
+    
+    <h3>3.2 Sending Content</h3>
+    <p>
+        Type in the bottom input bar and press <kbd>Enter</kbd>. To send an image, click the <strong>Square Icon</strong>. You may queue multiple images before sending. Click the <strong>"S"</strong> button on a preview thumbnail to toggle the Spoiler Blur before hitting Enter to send.
+    </p>
+
+    <h3>3.3 Managing the Connection</h3>
+    <p>
+        If at any point the conversation becomes undesirable, click the <strong>"Quit"</strong> button in the header. This will instantly destroy the room on the database level, preventing further messages from being sent or received. 
+    </p>
+</section>
+
+<section>
+    <h2>4. Rules of Engagement</h2>
+    <p>To maintain the integrity of the protocol, all users must adhere to the following mandates:</p>
+    <ul>
+        <li><strong>No Automated Scripts:</strong> The use of bots, scrapers, or automated spam scripts is strictly prohibited and may result in a permanent IP-level block.</li>
+        <li><strong>No Illegal Content:</strong> Users may not share materials that violate international laws, including but not limited to child safety violations, non-consensual imagery, or threats of domestic/international terrorism.</li>
+        <li><strong>No Personal Doxing:</strong> Sharing the private information (addresses, phone numbers, real names) of third parties without consent is a violation of the anonymity principle.</li>
+    </ul>
+</section>
+
+<section>
+    <h2>5. Terms of Service (ToS)</h2>
+    <p>By accessing the ANON_PROTOCOL, you agree to the following legally binding terms:</p>
+    <h3>5.1 Data Privacy</h3>
+    <p>
+        The service uses <code>sessionStorage</code> and <code>localStorage</code> to manage your connection. We do not sell your data because we do not collect your identity. However, be aware that messages are sent via a third-party database (Firebase). While rooms are deleted upon exit, we cannot guarantee that the database provider does not have their own internal logging.
+    </p>
+    
+    <h3>5.2 Termination of Service</h3>
+    <p>
+        We reserve the right to modify or shut down the protocol at any time without prior notice. As this is a free service, there is no "uptime" guarantee.
+    </p>
+
+    <h3>5.3 User Conduct</h3>
+    <p>
+        You understand that you will be exposed to content from a variety of sources and that the developers are not responsible for the accuracy, usefulness, safety, or intellectual property rights of such content. You waive any legal or equitable rights or remedies you have or may have against the developers with respect thereto.
+    </p>
+</section>
+
+<footer>
+    &copy; 2026 ANON_PROTOCOL PROJECT. All rights reserved. 
+    <br>
+    Communication is a human right. Use it wisely.
+</footer>
+
+</body>
+</html>
