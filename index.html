@@ -2,9 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
     <title>DarkFlux</title>
     <style>
+        html, body {
+    touch-action: manipulation;
+}
         :root {
             --bg: #000000;
             --fg: #ffffff;
@@ -24,6 +27,7 @@
             font-family: var(--font);
             margin: 0;
             height: 100vh;
+            height: 100dvh;
             display: flex;
             justify-content: center;
             overflow: hidden;
@@ -90,6 +94,7 @@
             flex-direction: column-reverse;
             gap: 12px;
             scroll-behavior: smooth;
+            overscroll-behavior: contain;
         }
 
         ::-webkit-scrollbar { width: 0px; }
@@ -184,6 +189,7 @@
             display: flex;
             flex-direction: column;
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
         }
         footer.hidden { transform: translateY(100%); }
 
@@ -209,10 +215,20 @@
         .preview-item.spoiler img { filter: blur(10px); }
         .preview-actions { position: absolute; top: 2px; right: 2px; display: flex; gap: 4px; }
         .preview-actions button { background: rgba(0,0,0,0.6); border: none; color: white; font-size: 10px; cursor: pointer; border-radius: 4px; }
+        .version-text {
+  font-size: 10px;
+  color: white;
+  opacity: 0.2;
+  margin-bottom: 1px;
+  text-align: center;
+  font-style: italic;
+}
     </style>
-    <div class="powered-by">
+<div class="powered-by">
+  <div class="version-text">v2.4.3</div>
   <div class="powered-text">Powered by</div>
   <img src="DarkFluxIcon.png" alt="DarkFlux" class="darkflux-icon">
+</div>
 </div>
 
 <style>
